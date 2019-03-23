@@ -1,5 +1,5 @@
 # swe573
-Term project of SWE573 course about social media exploration platform.  
+Term project of SWE573 course of Bogazici University about social media exploration platform.  
 The project aims to be a learning space for learners and teachers.
 
 Technologies that are going to be used:
