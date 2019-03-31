@@ -41,6 +41,8 @@ jobs:
     # run tests!
     - run: mvn test
 
+    - run: mvn sonar:sonar -Dsonar.organization=MY_ORGANIZATION -Dsonar.host.url=MY_HOST    -Dsonar.login=MY_LOGIN
+
   build:
     docker:
     # specify the version you desire here
