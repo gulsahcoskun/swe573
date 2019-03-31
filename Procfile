@@ -1,1 +1,1 @@
-web: java -jar target/glearn-*.jar
+web: java $JAVA_OPTS -jar target/glearn-*.jar --server.port=$PORT
