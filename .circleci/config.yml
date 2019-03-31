@@ -41,7 +41,7 @@ jobs:
     # run tests!
     - run: mvn test
 
-    - run: mvn sonar:sonar -Dsonar.projectKey=${MY_PROJECT_KEY} -Dsonar.organization=${MY_ORGANIZATION} -Dsonar.host.url=${MY_HOST}  -Dsonar.login=${MY_LOGIN}
+    - run: mvn sonar:sonar -Dsonar.organization=${MY_ORGANIZATION} -Dsonar.host.url=${MY_HOST}  -Dsonar.login=${MY_LOGIN}
 
   build:
     docker:
