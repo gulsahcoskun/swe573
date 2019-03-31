@@ -4,7 +4,7 @@
 #
 version: 2
 jobs:
-  build:
+  test:
     docker:
     # specify the version you desire here
     - image: circleci/openjdk:8-jdk
@@ -40,3 +40,70 @@ jobs:
 
     # run tests!
     - run: mvn test
+
+
+  build:
+    docker:
+    # specify the version you desire here
+    - image: circleci/openjdk:8-jdk
+
+    # Specify service dependencies here if necessary
+    # CircleCI maintains a library of pre-built images
+    # documented at https://circleci.com/docs/2.0/circleci-images/
+    # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+      TERM: dumb
+
+    steps:
+    - checkout
+
+    - setup_remote_docker
+
+    # Download and cache dependencies
+    - restore_cache:
+        keys:
+        - v1-dependencies-{{ checksum "pom.xml" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+
+    - run: mvn dependency:go-offline
+
+    - save_cache:
+        paths:
+        - ~/.m2
+        key: v1-dependencies-{{ checksum "pom.xml" }}
+
+    # run tests!
+    - run: mvn build
+
+
+  deploy:
+    docker:
+    - image: circleci/openjdk:8-jdk
+    steps:
+    - checkout
+    - run:
+        name: Deploy Master to Heroku
+        command: |
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+
+
+workflows:
+  version: 2
+  test-build-deploy:
+    jobs:
+    - test
+    - build:
+        requires:
+        - test
+    - deploy:
+        requires:
+        - build
+        filters:
+          branches:
+            only: master
