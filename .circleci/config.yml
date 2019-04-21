@@ -8,6 +8,10 @@ jobs:
     docker:
     # specify the version you desire here
     - image: circleci/openjdk:8-jdk
+      environment:
+        TEST_DATABASE_URL: jdbc:postgresql://localhost:5432/postgres
+
+    - image: circleci/postgres:9.6.5-alpine-ram
 
     # Specify service dependencies here if necessary
     # CircleCI maintains a library of pre-built images
