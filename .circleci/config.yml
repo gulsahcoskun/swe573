@@ -11,7 +11,7 @@ jobs:
       environment:
         TEST_DATABASE_URL: jdbc:postgresql://localhost:5432/postgres
 
-    - image: circleci/postgres:9.6.5-alpine-ram
+    - image: circleci/postgres:11.2
 
     # Specify service dependencies here if necessary
     # CircleCI maintains a library of pre-built images
