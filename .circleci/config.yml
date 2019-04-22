@@ -12,10 +12,10 @@ jobs:
         TEST_DATABASE_URL: jdbc:postgresql://localhost:5432/postgres
 
     - image: circleci/postgres:11.2
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: postgres
-          POSTGRES_PASSWORD: postgres
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
+        POSTGRES_PASSWORD: postgres
 
     working_directory: ~/repo
 
