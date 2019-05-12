@@ -1,31 +1,34 @@
 package com.boun.glearn.model;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.*;
+import java.util.Date;
+import java.util.Set;
+
+@Entity
+@Table(name = "question")
 public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "content_id")
-    private Long contentId;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "content_id")
+    private Content content;
 
-    @Column(name = "question")
-    private String question;
+    @Column(name = "question_text")
+    private String questionText;
 
     @Column(name = "item_order")
     private Long order;
 
-    @Column(name = "teacher_id")
-    private Long teacherId;
+    private Long status;
 
-    @Column(name = "created_date")
-    private Date createdDate;
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    private Set<Option> options;
 
     public Question() {
     }
@@ -38,21 +41,14 @@ public class Question {
         this.id = id;
     }
 
-    public Long getContentId() {
-        return contentId;
+    public Content getContent() {
+        return content;
     }
 
-    public void setContentId(Long contentId) {
-        this.contentId = contentId;
+    public void setContent(Content content) {
+        this.content = content;
     }
 
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
 
     public Long getOrder() {
         return order;
@@ -62,19 +58,27 @@ public class Question {
         this.order = order;
     }
 
-    public Long getTeacherId() {
-        return teacherId;
+    public String getQuestionText() {
+        return questionText;
     }
 
-    public void setTeacherId(Long teacherId) {
-        this.teacherId = teacherId;
+    public void setQuestionText(String questionText) {
+        this.questionText = questionText;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
+    public Long getStatus() {
+        return status;
     }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setStatus(Long status) {
+        this.status = status;
+    }
+
+    public Set<Option> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Set<Option> options) {
+        this.options = options;
     }
 }

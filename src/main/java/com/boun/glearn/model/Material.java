@@ -1,7 +1,10 @@
 package com.boun.glearn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 
 @Entity
@@ -12,13 +15,11 @@ public class Material {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "title")
     private String title;
 
-    @Column(name = "description")
+    @Column(columnDefinition = "text")
     private String description;
 
-    @Column(name = "image")
     private String image;
 
     @Column(name = "date_created")
@@ -27,8 +28,13 @@ public class Material {
     @Column(name = "date_updated")
     private Date dateUpdated;
 
-    @Column(name = "teacher_id")
-    private Long teacherId;
+    @Column(name = "created_by")
+    private String createdBy;
+
+    private Long status;
+
+    @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
+    private Set<Content> contents;
 
     public Material() {
     }
@@ -81,11 +87,27 @@ public class Material {
         this.dateUpdated = dateUpdated;
     }
 
-    public Long getTeacherId() {
-        return teacherId;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setTeacherId(Long teacherId) {
-        this.teacherId = teacherId;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
+    }
+
+    public Set<Content> getContents() {
+        return contents;
+    }
+
+    public void setContents(Set<Content> contents) {
+        this.contents = contents;
     }
 }

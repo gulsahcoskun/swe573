@@ -1,5 +1,7 @@
 package com.boun.glearn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,17 +12,22 @@ public class Option {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "question_id")
-    private Long questionId;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "question_id")
+    private Question question;
 
-    @Column(name = "option")
-    private String option;
+    @Column(name = "option_text")
+    private String optionText;
 
     @Column(name = "is_answer")
     private Boolean isAnswer;
 
     @Column(name = "item_order")
     private Long order;
+
+    private Long status;
+
 
     public Option() {
     }
@@ -33,20 +40,12 @@ public class Option {
         this.id = id;
     }
 
-    public Long getQuestionId() {
-        return questionId;
+    public Question getQuestion() {
+        return question;
     }
 
-    public void setQuestionId(Long questionId) {
-        this.questionId = questionId;
-    }
-
-    public String getOption() {
-        return option;
-    }
-
-    public void setOption(String option) {
-        this.option = option;
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 
     public Boolean getAnswer() {
@@ -63,5 +62,22 @@ public class Option {
 
     public void setOrder(Long order) {
         this.order = order;
+    }
+
+    public String getOptionText() {
+        return optionText;
+    }
+
+    public void setOptionText(String optionText) {
+        this.optionText = optionText;
+    }
+
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
     }
 }

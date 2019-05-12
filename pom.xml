@@ -49,6 +49,11 @@
             <artifactId>jjwt</artifactId>
             <version>0.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.wikidata.wdtk</groupId>
+            <artifactId>wdtk-client</artifactId>
+            <version>0.9.0</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,7 +1,8 @@
 package com.boun.glearn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "keyword")
@@ -11,31 +12,32 @@ public class Keyword {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "content_id")
-    private Long contentId;
+    @Column(name = "title")
+    private String title;
 
-    @Column(name = "semantig_tag")
-    private String semanticTag;
+    @Column(name = "label")
+    private String label;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "url")
+    private String url;
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "description")
+    private String description;
 
-    @Column(name = "instance_of")
-    private String instanceOf;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "content_id")
+    private Content content;
 
-    @Column(name = "instance_id")
-    private String instanceId;
-
-    @Column(name = "teacher_id")
-    private Long teacherId;
-
-    @Column(name = "created_date")
-    private Date createdDate;
 
     public Keyword() {
+    }
+
+    public Keyword(String title, String label, String url, String description) {
+        this.title = title;
+        this.label = label;
+        this.url = url;
+        this.description = description;
     }
 
     public Long getId() {
@@ -46,67 +48,45 @@ public class Keyword {
         this.id = id;
     }
 
-    public Long getContentId() {
-        return contentId;
+
+    public Content getContent() {
+        return content;
     }
 
-    public void setContentId(Long contentId) {
-        this.contentId = contentId;
+    public void setContent(Content content) {
+        this.content = content;
     }
 
-    public String getSemanticTag() {
-        return semanticTag;
+
+    public String getTitle() {
+        return title;
     }
 
-    public void setSemanticTag(String semanticTag) {
-        this.semanticTag = semanticTag;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getName() {
-        return name;
+    public String getLabel() {
+        return label;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public String getImage() {
-        return image;
+    public String getUrl() {
+        return url;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public String getInstanceOf() {
-        return instanceOf;
+    public String getDescription() {
+        return description;
     }
 
-    public void setInstanceOf(String instanceOf) {
-        this.instanceOf = instanceOf;
-    }
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
-    public Long getTeacherId() {
-        return teacherId;
-    }
-
-    public void setTeacherId(Long teacherId) {
-        this.teacherId = teacherId;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

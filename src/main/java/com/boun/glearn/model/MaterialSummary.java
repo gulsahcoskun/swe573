@@ -4,22 +4,31 @@ import java.util.List;
 
 public class MaterialSummary {
 
-    private int materialId;
+    private Long materialId;
     private String image;
     private String materialName;
-    private List<Keyword> keywordList;
+    private List<String> keywordList;
     private String description;
-    private String teacherName;
+    private String createdBy;
 
 
     public MaterialSummary() {
     }
 
-    public int getMaterialId() {
+    public MaterialSummary(Long materialId, String image, String materialName, List<String> keywordList, String description, String teacherName) {
+        this.materialId = materialId;
+        this.image = image;
+        this.materialName = materialName;
+        this.keywordList = keywordList;
+        this.description = description;
+        this.createdBy = teacherName;
+    }
+
+    public Long getMaterialId() {
         return materialId;
     }
 
-    public void setMaterialId(int materialId) {
+    public void setMaterialId(Long materialId) {
         this.materialId = materialId;
     }
 
@@ -39,12 +48,20 @@ public class MaterialSummary {
         this.materialName = materialName;
     }
 
-    public List<Keyword> getKeywordList() {
+    public List<String> getKeywordList() {
         return keywordList;
     }
 
-    public void setKeywordList(List<Keyword> keywordList) {
+    public void setKeywordList(List<String> keywordList) {
         this.keywordList = keywordList;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getDescription() {
@@ -55,11 +72,4 @@ public class MaterialSummary {
         this.description = description;
     }
 
-    public String getTeacherName() {
-        return teacherName;
-    }
-
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
-    }
 }

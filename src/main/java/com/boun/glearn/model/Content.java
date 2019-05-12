@@ -1,37 +1,41 @@
 package com.boun.glearn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "content")
 public class Content {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "topic_id")
-    private Long topicId;
-
-    @Column(name = "title")
     private String title;
 
-    @Column(name = "explanation")
+    @Column(columnDefinition = "text")
     private String explanation;
 
-    @Column(name = "image")
     private String image;
-
-    @Column(name = "created_date")
-    private Date createdDate;
-
-    @Column(name = "updated_date")
-    private Date updatedDate;
 
     @Column(name = "item_order")
     private Long order;
+
+    private Long status;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "material_id")
+    private Material material;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL)
+    private Set<Keyword> keywords;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL)
+    private Set<Question> questions;
+
 
     public Content() {
     }
@@ -42,14 +46,6 @@ public class Content {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getTopicId() {
-        return topicId;
-    }
-
-    public void setTopicId(Long topicId) {
-        this.topicId = topicId;
     }
 
     public String getTitle() {
@@ -76,20 +72,20 @@ public class Content {
         this.image = image;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
+    public Long getStatus() {
+        return status;
     }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setStatus(Long status) {
+        this.status = status;
     }
 
-    public Date getUpdatedDate() {
-        return updatedDate;
+    public Set<Question> getQuestions() {
+        return questions;
     }
 
-    public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
+    public void setQuestions(Set<Question> questions) {
+        this.questions = questions;
     }
 
     public Long getOrder() {
@@ -98,5 +94,22 @@ public class Content {
 
     public void setOrder(Long order) {
         this.order = order;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    public Set<Keyword> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(Set<Keyword> keywords) {
+        this.keywords = keywords;
+
     }
 }
