@@ -202,7 +202,7 @@ public class TeachServiceImpl implements TeachService {
             newQuestion.setContent(content.get());
             newQuestion.setStatus(question.getStatus());
             newQuestion.setOrder(count);
-            newQuestion.setStatus(1);
+            newQuestion.setStatus(1L);
             newQuestion.setQuestionText(question.getQuestionText());
 
             questionRepository.save(newQuestion);
@@ -215,7 +215,7 @@ public class TeachServiceImpl implements TeachService {
                 newOption.setAnswer(option.getAnswer());
                 newOption.setOrder(optionOrder);
                 newOption.setQuestion(newQuestion);
-                newOption.setStatus(1);
+                newOption.setStatus(1L);
 
                 optionRepository.save(newOption);
                 optionOrder++;
