@@ -10,18 +10,21 @@ public class MaterialSummary {
     private List<String> keywordList;
     private String description;
     private String createdBy;
+    private String detail;
 
 
     public MaterialSummary() {
     }
 
-    public MaterialSummary(Long materialId, String image, String materialName, List<String> keywordList, String description, String teacherName) {
+    public MaterialSummary(Long materialId, String image, String materialName, List<String> keywordList,
+                           String description, String createdBy, String detail) {
         this.materialId = materialId;
         this.image = image;
         this.materialName = materialName;
         this.keywordList = keywordList;
         this.description = description;
-        this.createdBy = teacherName;
+        this.createdBy = createdBy;
+        this.detail = detail;
     }
 
     public Long getMaterialId() {
@@ -72,4 +75,11 @@ public class MaterialSummary {
         this.description = description;
     }
 
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
 }

@@ -28,23 +28,31 @@ public class LearnServiceImpl implements LearnService {
 
 
     @Override
-    public ServiceResponse addProgress(String username, Long materialId, Long contentId, String options) {
-        List<UserProgress> userMaterialProgress = userProgressRepository.getAllByUsernameAndMaterialId(username, materialId);
-        Content content = contentRepository.findById(contentId).get();
+    public ServiceResponse addProgress(UserProgressControl userProgressControl) {
+        List<UserProgress> userMaterialProgress = userProgressRepository
+                .getAllByUsernameAndMaterialId(userProgressControl.getUsername(), userProgressControl.getMaterialId());
+        Content content = contentRepository.findById(userProgressControl.getContentId()).get();
 
         UserProgress progress = new UserProgress();
-        boolean isPassed = checkAnswers(options, content);
+
+        boolean isPassed = false;
+        if(content.getQuestions() == null || content.getQuestions().isEmpty()){
+            isPassed = true;
+        } else {
+            isPassed = checkAnswers(userProgressControl.getAnswerList(), content);
+        }
 
         if (userMaterialProgress == null) {
-            progress.setUsername(username);
-            progress.setMaterialId(materialId);
-            progress.setContentId(contentId);
+            progress.setUsername(userProgressControl.getUsername());
+            progress.setMaterialId(userProgressControl.getMaterialId());
+            progress.setContentId(userProgressControl.getMaterialId());
             progress.setDateStarted(new Date());
             progress.setNumberOfTry(1L);
             progress.setCompleted(isPassed);
             userProgressRepository.save(progress);
         } else {
-            Optional<UserProgress> userContentProgress = userMaterialProgress.stream().filter(p -> p.getContentId() == contentId).findAny();
+            Optional<UserProgress> userContentProgress = userMaterialProgress.stream()
+                    .filter(p -> p.getContentId().equals(userProgressControl.getContentId())).findAny();
             if (userContentProgress.isPresent()) {
                 UserProgress existingProgress = userContentProgress.get();
                 existingProgress.setDateUpdated(new Date());
@@ -52,12 +60,13 @@ public class LearnServiceImpl implements LearnService {
                 existingProgress.setCompleted(isPassed);
                 userProgressRepository.save(existingProgress);
             } else {
-                progress.setUsername(username);
-                progress.setMaterialId(materialId);
-                progress.setContentId(contentId);
+                progress.setUsername(userProgressControl.getUsername());
+                progress.setMaterialId(userProgressControl.getMaterialId());
+                progress.setContentId(userProgressControl.getContentId());
                 progress.setDateStarted(new Date());
                 progress.setNumberOfTry(1L);
                 progress.setCompleted(isPassed);
+                userProgressRepository.save(progress);
             }
         }
 
@@ -67,13 +76,16 @@ public class LearnServiceImpl implements LearnService {
     }
 
     @Override
-    public ServiceResponse isContentCompleted(String username, Long materialId, Long contentId) {
+    public ServiceResponse isContentCompleted(UserProgressControl userProgressControl) {
         boolean isCompleted = false;
-        Set<Content> contents = materialRepository.findById(materialId).get().getContents();
-        List<UserProgress> userMaterialProgress = userProgressRepository.getAllByUsernameAndMaterialId(username, materialId);
-        Content content = contentRepository.findById(contentId).get();
+        Set<Content> contents = materialRepository.findById(userProgressControl.getMaterialId()).get().getContents();
+        List<UserProgress> userMaterialProgress = userProgressRepository
+                .getAllByUsernameAndMaterialId(userProgressControl.getUsername(), userProgressControl.getMaterialId());
+        Content content = contentRepository.findById(userProgressControl.getContentId()).get();
 
-        Optional<UserProgress> contentProgress = userMaterialProgress.stream().filter(m -> m.getContentId() == contentId).findFirst();
+        Optional<UserProgress> contentProgress = userMaterialProgress.stream()
+                .filter(m -> m.getContentId().equals(userProgressControl.getContentId())).findFirst();
+        ServiceResponse serviceResponse = new ServiceResponse();
 
         if (contentProgress.isPresent()) {
             if (content.getOrder() != contents.size()) {
@@ -83,29 +95,40 @@ public class LearnServiceImpl implements LearnService {
                     isCompleted = userMaterialProgress.stream()
                             .filter(p -> p.getContentId() == dependentContent.getId())
                             .filter(c -> !c.isCompleted()).count() > 0 ? false : true;
+                    if(isCompleted){
+                        serviceResponse.setMessage("You finished the material ! ");
+                    }
                 }
             }
         }
 
-        ServiceResponse serviceResponse = new ServiceResponse();
+
         serviceResponse.setSuccess(isCompleted);
         return serviceResponse;
     }
 
-    private boolean checkAnswers(String options, Content content) {
-        String[] selectedOptions = options.split(",");
-        int count = 0;
+    private boolean checkAnswers(List<Answer> answerList, Content content) {
         boolean allTrue = false;
-        for (Question question : content.getQuestions()) {
-            for (Option option : question.getOptions()) {
-                if (option.getAnswer() && option.getOrder() == Long.valueOf(selectedOptions[count])) {
-                    allTrue = true;
-                } else {
-                    return false;
+
+        if(answerList == null){
+            return false;
+        } else if (content.getQuestions().size() != answerList.size()) {
+            return false;
+        } else {
+            for (Question question : content.getQuestions()) {
+                Option correctOption =  question.getOptions().stream().filter(o -> o.getIsAnswer() == true).findFirst().get();
+                for(Answer answer : answerList){
+                    if(answer.getQuestionId().equals(question.getId())){
+                        if(answer.getOptionId().equals(correctOption.getId())){
+                            allTrue = true;
+                        } else {
+                            return false;
+                        }
+                    }
                 }
             }
-            count++;
         }
+
         return allTrue;
     }
 

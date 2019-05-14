@@ -159,7 +159,7 @@ public class TeachServiceImpl implements TeachService {
 
 
             for(Keyword keyword : content.getKeywords()){
-                if(keywordRepository.findByTitle(keyword.getTitle()) != null){
+                if(keywordRepository.findByTitle(keyword.getTitle()) == null){
                     Keyword newKeyword = new Keyword();
                     newKeyword.setLabel(keyword.getLabel());
                     newKeyword.setContent(newContent);
@@ -212,7 +212,7 @@ public class TeachServiceImpl implements TeachService {
             for (Option option : question.getOptions()) {
                 Option newOption = new Option();
                 newOption.setOptionText(option.getOptionText());
-                newOption.setAnswer(option.getAnswer());
+                newOption.setIsAnswer(option.getIsAnswer());
                 newOption.setOrder(optionOrder);
                 newOption.setQuestion(newQuestion);
                 newOption.setStatus(1L);

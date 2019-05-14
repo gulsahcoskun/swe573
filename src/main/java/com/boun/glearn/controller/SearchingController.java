@@ -41,7 +41,7 @@ public class SearchingController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Material> getMaterialSummary(@PathVariable Long id){
+    public ResponseEntity<Material> getMaterialDetail(@PathVariable Long id){
         return ResponseEntity.ok(searchService.getMaterialDetail(id));
     }
 

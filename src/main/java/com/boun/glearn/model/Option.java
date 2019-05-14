@@ -48,12 +48,12 @@ public class Option {
         this.question = question;
     }
 
-    public Boolean getAnswer() {
+    public Boolean getIsAnswer() {
         return isAnswer;
     }
 
-    public void setAnswer(Boolean answer) {
-        isAnswer = answer;
+    public void setIsAnswer(Boolean isAnswer) {
+        this.isAnswer = isAnswer;
     }
 
     public Long getOrder() {

@@ -3,17 +3,13 @@ package com.boun.glearn.service;
 import com.boun.glearn.model.Content;
 import com.boun.glearn.model.Material;
 import com.boun.glearn.model.MaterialSummary;
-import com.boun.glearn.repository.ContentRepository;
 import com.boun.glearn.repository.MaterialRepository;
 import com.boun.glearn.repository.UserProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +30,8 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<Content> getContents(Long materialId) {
-        return repository.getContentsByMaterialId(materialId);
+        List<Content> contentList = repository.getContentsByMaterialId(materialId);
+        return contentList.stream().sorted(Comparator.comparing(Content::getOrder)).collect(Collectors.toList());
     }
 
     @Override
@@ -46,12 +43,12 @@ public class SearchServiceImpl implements SearchService {
                 .flatMap(k -> k.getKeywords().stream())
                 .anyMatch(k -> k.getLabel().contains(keyword))).collect(Collectors.toList());
 
-        List<Material> materialList = new ArrayList<>();
+        Set<Material> materialList = new HashSet<>();
         materialList.addAll(foundByName);
         materialList.addAll(foundByContents);
         materialList.addAll(foundByKeywords);
 
-        return materialToMaterialSummary(materialList);
+        return materialToMaterialSummary(new ArrayList(Arrays.asList(materialList.toArray())));
     }
 
 
@@ -59,6 +56,7 @@ public class SearchServiceImpl implements SearchService {
     public Material getMaterialDetail(Long materialId) {
         Optional<Material> found = repository.findById(materialId);
         if (found.isPresent()) {
+            found.get().getContents().stream().sorted(Comparator.comparing(Content::getOrder));
             return found.get();
         }
         return null;
@@ -105,11 +103,18 @@ public class SearchServiceImpl implements SearchService {
 
     private List<MaterialSummary> materialToMaterialSummary(List<Material> materialList) {
         return materialList.stream().map(m ->
-                new MaterialSummary(m.getId(), m.getImage(), m.getTitle(),
+                new MaterialSummary(m.getId(),
+                        m.getImage(),
+                        m.getTitle(),
                         m.getContents().stream()
                                 .flatMap(c -> c.getKeywords().stream())
                                 .map(k -> k.getLabel())
-                                .collect(Collectors.toList()), m.getDescription(), m.getCreatedBy()))
+                                .collect(Collectors.toList()),
+                        m.getDescription(),
+                        m.getCreatedBy(),
+                        m.getContents().size() + " contents, "
+                                + m.getContents().stream()
+                                .mapToInt(c -> c.getQuestions().size()).sum() + " questions"))
                 .collect(Collectors.toList());
     }
 
