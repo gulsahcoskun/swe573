@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface SearchService {
 
-    List<MaterialSummary> getAllMaterialSummaries();
+    List<MaterialSummary> getAllMaterialSummaries(String username);
     List<Content> getContents(Long materialId);
     List<MaterialSummary> searchMaterials(String keyword);
     Material getMaterialDetail(Long materialId);
-    List<MaterialSummary> getCreatedMaterials(String createdBy);
+    List<Material> getCreatedMaterials(String createdBy);
     List<MaterialSummary> getInProgressMaterial(String username);
     List<MaterialSummary> getCompletedMaterial(String username);
 

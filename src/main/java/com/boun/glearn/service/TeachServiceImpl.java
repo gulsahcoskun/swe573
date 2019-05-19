@@ -22,6 +22,7 @@ public class TeachServiceImpl implements TeachService {
     private static final String MATERIAL_EXISTS = "Material already exists.";
     private static final String MATERIAL_NOT_EXIST = "Material does not exist.";
     private static final String CONTENT_NOT_EXIST = "Content does not exist.";
+    private static final String QUESTION_NOT_EXIST = "Question does not exist.";
     private static final String SUCCESS_MESSAGE = "Successfully completed.";
 
 
@@ -70,18 +71,18 @@ public class TeachServiceImpl implements TeachService {
     }
 
     @Override
-    public List<Content> getAllContents(Long materialId) {
-        return (List<Content>) materialRepository.findById(materialId).get().getContents();
+    public Set<Content> getAllContents(Long materialId) {
+        return  materialRepository.findById(materialId).get().getContents();
     }
 
     @Override
-    public List<Question> getAllQuestions(Long contentId) {
-        return (List<Question>) contentRepository.findById(contentId).get().getQuestions();
+    public Set<Question> getAllQuestions(Long contentId) {
+        return contentRepository.findById(contentId).get().getQuestions();
     }
 
     @Override
-    public List<Keyword> getAllKeywords(Long contentId) {
-        return (List<Keyword>) contentRepository.findById(contentId).get().getKeywords();
+    public Set<Keyword> getAllKeywords(Long contentId) {
+        return contentRepository.findById(contentId).get().getKeywords();
     }
 
 
@@ -89,11 +90,12 @@ public class TeachServiceImpl implements TeachService {
     public ServiceResponse addMaterial(Material material) {
         ServiceResponse serviceResponse = new ServiceResponse();
         if(material.getId() != null && materialRepository.findById(material.getId()).isPresent()){
-            serviceResponse.setSuccess(false);
+            serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(MATERIAL_EXISTS);
         } else {
+            material.setDateCreated(new Date());
             materialRepository.save(material);
-            serviceResponse.setSuccess(true);
+            serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
         }
        return serviceResponse;
@@ -102,18 +104,24 @@ public class TeachServiceImpl implements TeachService {
     @Override
     public ServiceResponse updateMaterial(Material material, Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
-        if(materialRepository.findById(material.getId()).isPresent()){
-            materialRepository.save(material);
-            serviceResponse.setSuccess(true);
+        Optional<Material> foundMaterial = materialRepository.findById(material.getId());
+        if(foundMaterial.isPresent()){
+            Material newMaterial = foundMaterial.get();
+            newMaterial.setTitle(material.getTitle());
+            newMaterial.setImage(material.getImage());
+            newMaterial.setDescription(material.getDescription());
+            newMaterial.setDateUpdated(new Date());
+            materialRepository.save(newMaterial);
+
+            serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
         } else {
-            serviceResponse.setSuccess(false);
+            serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(MATERIAL_NOT_EXIST);
         }
         return serviceResponse;
     }
 
-    //todo control here
     @Override
     public ServiceResponse deleteMaterial(Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
@@ -130,10 +138,10 @@ public class TeachServiceImpl implements TeachService {
             }
 
             materialRepository.deleteById(id);
-            serviceResponse.setSuccess(true);
+            serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
         } else {
-            serviceResponse.setSuccess(false);
+            serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(MATERIAL_NOT_EXIST);
         }
         return serviceResponse;
@@ -172,10 +180,10 @@ public class TeachServiceImpl implements TeachService {
 
             }
 
-            serviceResponse.setSuccess(true);
+            serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
         } else {
-            serviceResponse.setSuccess(false);
+            serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(MATERIAL_NOT_EXIST);
         }
         return serviceResponse;
@@ -183,12 +191,43 @@ public class TeachServiceImpl implements TeachService {
 
     @Override
     public ServiceResponse updateContent(Content content, Long id) {
-        return null;
+        ServiceResponse serviceResponse = new ServiceResponse();
+        Optional<Content> foundContent = contentRepository.findById(id);
+        if(foundContent.isPresent()){
+            Content newContent = foundContent.get();
+            newContent.setTitle(content.getTitle());
+            newContent.setImage(content.getImage());
+            newContent.setExplanation(content.getExplanation());
+            contentRepository.save(newContent);
+
+            serviceResponse.setIsSuccess(true);
+            serviceResponse.setMessage(SUCCESS_MESSAGE);
+        } else {
+            serviceResponse.setIsSuccess(false);
+            serviceResponse.setMessage(CONTENT_NOT_EXIST);
+        }
+        return serviceResponse;
     }
 
     @Override
     public ServiceResponse deleteContent(Long id) {
-        return null;
+        ServiceResponse serviceResponse = new ServiceResponse();
+        if(contentRepository.findById(id).isPresent()){
+            Content content = contentRepository.findById(id).get();
+            Set<Question> questions = content.getQuestions();
+            Set<Keyword> keywords = content.getKeywords();
+
+            questions.stream().forEach(q -> questionRepository.deleteById(q.getId()));
+            keywords.stream().forEach(k -> keywordRepository.deleteById(k.getId()));
+            contentRepository.deleteById(content.getId());
+
+            serviceResponse.setIsSuccess(true);
+            serviceResponse.setMessage(SUCCESS_MESSAGE);
+        } else {
+            serviceResponse.setIsSuccess(false);
+            serviceResponse.setMessage(CONTENT_NOT_EXIST);
+        }
+        return serviceResponse;
     }
 
     @Override
@@ -221,10 +260,10 @@ public class TeachServiceImpl implements TeachService {
                 optionOrder++;
             }
 
-            serviceResponse.setSuccess(true);
+            serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
         } else {
-            serviceResponse.setSuccess(false);
+            serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(CONTENT_NOT_EXIST);
         }
 
@@ -232,13 +271,41 @@ public class TeachServiceImpl implements TeachService {
     }
 
     @Override
-    public ServiceResponse updateQuestion(Question question, Long contentId) {
-        return null;
+    public ServiceResponse updateQuestion(Question question, Long id) {
+        ServiceResponse serviceResponse = new ServiceResponse();
+        Optional<Question> foundQuestion = questionRepository.findById(id);
+        if(foundQuestion.isPresent()){
+            Question newQuestion = foundQuestion.get();
+            newQuestion.setQuestionText(question.getQuestionText());
+            questionRepository.save(newQuestion);
+
+            serviceResponse.setIsSuccess(true);
+            serviceResponse.setMessage(SUCCESS_MESSAGE);
+        } else {
+            serviceResponse.setIsSuccess(false);
+            serviceResponse.setMessage(QUESTION_NOT_EXIST);
+        }
+        return serviceResponse;
     }
 
     @Override
     public ServiceResponse deleteQuestion(Long id) {
-        return null;
+        ServiceResponse serviceResponse = new ServiceResponse();
+        if(questionRepository.findById(id).isPresent()){
+            Question question = questionRepository.findById(id).get();
+            Set<Option> options = question.getOptions();
+
+            options.stream().forEach(q -> optionRepository.deleteById(q.getId()));
+
+            questionRepository.deleteById(id);
+
+            serviceResponse.setIsSuccess(true);
+            serviceResponse.setMessage(SUCCESS_MESSAGE);
+        } else {
+            serviceResponse.setIsSuccess(false);
+            serviceResponse.setMessage(QUESTION_NOT_EXIST);
+        }
+        return serviceResponse;
     }
 
 }

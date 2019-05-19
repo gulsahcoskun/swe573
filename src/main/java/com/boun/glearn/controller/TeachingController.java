@@ -77,4 +77,9 @@ public class TeachingController {
     }
 
 
+    @GetMapping("/questions/{id}")
+    public ResponseEntity getAllQuestions(@PathVariable Long id){
+        return ResponseEntity.ok(service.getAllQuestions(id));
+    }
+
 }

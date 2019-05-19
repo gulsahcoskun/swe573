@@ -19,8 +19,8 @@ public class ServiceResponse {
         return isSuccess;
     }
 
-    public void setSuccess(boolean success) {
-        isSuccess = success;
+    public void setIsSuccess(boolean isSuccess) {
+        this.isSuccess = isSuccess;
     }
 
     public Object getMessage() {

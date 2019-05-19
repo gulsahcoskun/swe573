@@ -3,6 +3,7 @@ package com.boun.glearn.service;
 import com.boun.glearn.model.Content;
 import com.boun.glearn.model.Material;
 import com.boun.glearn.model.MaterialSummary;
+import com.boun.glearn.model.UserProgress;
 import com.boun.glearn.repository.MaterialRepository;
 import com.boun.glearn.repository.UserProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,14 @@ public class SearchServiceImpl implements SearchService {
     private UserProgressRepository userProgressRepository;
 
     @Override
-    public List<MaterialSummary> getAllMaterialSummaries() {
+    public List<MaterialSummary> getAllMaterialSummaries(String username) {
         List<Material> foundMaterials = repository.findAll().stream().collect(Collectors.toList());
+        if(username != null && !username.isEmpty()){
+            foundMaterials = foundMaterials.stream()
+                    .filter(m -> !m.getCreatedBy().equalsIgnoreCase(username))
+                    .collect(Collectors.toList());
+        }
+
         return materialToMaterialSummary(foundMaterials);
     }
 
@@ -37,16 +44,16 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<MaterialSummary> searchMaterials(String keyword) {
         List<Material> all = repository.findAll();
-        List<Material> foundByName = all.stream().filter(m -> m.getTitle().contains(keyword)).collect(Collectors.toList());
-        List<Material> foundByContents = all.stream().filter(m -> m.getContents().stream().anyMatch(t -> t.getTitle().contains(keyword))).collect(Collectors.toList());
-        List<Material> foundByKeywords = all.stream().filter(m -> m.getContents().stream()
+        List<Material> foundByName = all.stream().filter(m -> m.getTitle().toUpperCase().contains(keyword.toUpperCase())).collect(Collectors.toList());
+        List<Material> foundByContents = all.stream().filter(m -> m.getContents().stream().anyMatch(t -> t.getTitle().toUpperCase().contains(keyword.toUpperCase()))).collect(Collectors.toList());
+        /*List<Material> foundByKeywords = all.stream().filter(m -> m.getContents().stream()
                 .flatMap(k -> k.getKeywords().stream())
-                .anyMatch(k -> k.getLabel().contains(keyword))).collect(Collectors.toList());
+                .anyMatch(k -> k.getLabel().contains(keyword))).collect(Collectors.toList());*/
 
         Set<Material> materialList = new HashSet<>();
         materialList.addAll(foundByName);
         materialList.addAll(foundByContents);
-        materialList.addAll(foundByKeywords);
+        //materialList.addAll(foundByKeywords);
 
         return materialToMaterialSummary(new ArrayList(Arrays.asList(materialList.toArray())));
     }
@@ -63,38 +70,83 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<MaterialSummary> getCreatedMaterials(String createdBy) {
-        List<Material> materials = repository.getMaterialByCreatedBy(createdBy);
-        return materialToMaterialSummary(materials);
+    public List<Material> getCreatedMaterials(String createdBy) {
+        return repository.getMaterialByCreatedBy(createdBy);
     }
 
     @Override
     public List<MaterialSummary> getInProgressMaterial(String username) {
-        Set<Long> materialIds = userProgressRepository.getUserProgressByUsername(username).stream()
-                .filter(p -> !p.isCompleted())
-                .map(m -> m.getMaterialId())
-                .collect(Collectors.toSet());
+        List<UserProgress> allProgress = userProgressRepository.getUserProgressByUsername(username);
+
+        Set<Long> materialIds = allProgress.stream()
+                .map(m -> m.getMaterialId()).collect(Collectors.toSet());
 
         List<Material> foundMaterials = new ArrayList<>();
 
         for(Long id: materialIds){
-            foundMaterials.add(repository.findById(id).get());
+            List<Content> contents = repository.getContentsByMaterialId(id);
+            List<UserProgress> materialProgress = allProgress.stream().filter(p -> p.getMaterialId().equals(id)).collect(Collectors.toList());
+            int successCount = 0;
+
+            for (Content content : contents) {
+                Boolean isContentCompleted = false;
+
+                for(UserProgress userProgress: materialProgress){
+                    if(userProgress.getContentId().equals(content.getId())){
+                        isContentCompleted = userProgress.isCompleted();
+                        break;
+                    }
+                }
+
+                if (isContentCompleted) {
+                    successCount++;
+                }
+            }
+
+            if( !contents.isEmpty() && (successCount != contents.size())){
+                foundMaterials.add(repository.findById(id).get());
+            }
+
         }
 
         return materialToMaterialSummary(foundMaterials);
     }
 
+
+
     @Override
     public List<MaterialSummary> getCompletedMaterial(String username) {
-        Set<Long> materialIds = userProgressRepository.getUserProgressByUsername(username).stream()
-                .filter(p -> p.isCompleted())
-                .map(m -> m.getMaterialId())
-                .collect(Collectors.toSet());
+        List<UserProgress> allProgress = userProgressRepository.getUserProgressByUsername(username);
+
+        Set<Long> materialIds = allProgress.stream()
+                .map(m -> m.getMaterialId()).collect(Collectors.toSet());
 
         List<Material> foundMaterials = new ArrayList<>();
 
         for(Long id: materialIds){
-            foundMaterials.add(repository.findById(id).get());
+            List<Content> contents = repository.getContentsByMaterialId(id);
+            List<UserProgress> materialProgress = allProgress.stream().filter(p -> p.getMaterialId().equals(id)).collect(Collectors.toList());
+            int successCount = 0;
+
+            for (Content content : contents) {
+                Boolean isContentCompleted = false;
+
+                for(UserProgress userProgress: materialProgress){
+                    if(userProgress.getContentId().equals(content.getId())){
+                        isContentCompleted = userProgress.isCompleted();
+                        break;
+                    }
+                }
+
+                if (isContentCompleted) {
+                    successCount++;
+                }
+            }
+
+            if(!contents.isEmpty() && (successCount == contents.size())){
+                foundMaterials.add(repository.findById(id).get());
+            }
+
         }
 
         return materialToMaterialSummary(foundMaterials);

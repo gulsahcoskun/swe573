@@ -20,9 +20,9 @@ public class SearchingController {
     @Autowired
     private SearchService searchService;
 
-    @GetMapping("/")
-    public ResponseEntity<List<MaterialSummary>> getMaterials(){
-        return ResponseEntity.ok(searchService.getAllMaterialSummaries());
+    @GetMapping("/{username}")
+    public ResponseEntity<List<MaterialSummary>> getMaterials(@PathVariable(name="username") String username){
+        return ResponseEntity.ok(searchService.getAllMaterialSummaries(username));
     }
 
     @GetMapping("/content/{id}")
@@ -36,7 +36,7 @@ public class SearchingController {
     }
 
     @GetMapping("/createdBy/{createdBy}")
-    public ResponseEntity<List<MaterialSummary>> getCreatedMaterials(@PathVariable("createdBy") String createdBy){
+    public ResponseEntity<List<Material>> getCreatedMaterials(@PathVariable("createdBy") String createdBy){
         return ResponseEntity.ok(searchService.getCreatedMaterials(createdBy));
     }
 

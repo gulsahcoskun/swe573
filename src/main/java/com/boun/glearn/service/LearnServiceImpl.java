@@ -8,10 +8,7 @@ import com.boun.glearn.repository.UserProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -31,12 +28,13 @@ public class LearnServiceImpl implements LearnService {
     public ServiceResponse addProgress(UserProgressControl userProgressControl) {
         List<UserProgress> userMaterialProgress = userProgressRepository
                 .getAllByUsernameAndMaterialId(userProgressControl.getUsername(), userProgressControl.getMaterialId());
+
         Content content = contentRepository.findById(userProgressControl.getContentId()).get();
 
         UserProgress progress = new UserProgress();
 
-        boolean isPassed = false;
-        if(content.getQuestions() == null || content.getQuestions().isEmpty()){
+        boolean isPassed;
+        if (content.getQuestions() == null || content.getQuestions().isEmpty()) {
             isPassed = true;
         } else {
             isPassed = checkAnswers(userProgressControl.getAnswerList(), content);
@@ -71,55 +69,24 @@ public class LearnServiceImpl implements LearnService {
         }
 
         ServiceResponse serviceResponse = new ServiceResponse();
-        serviceResponse.setSuccess(isPassed);
+        serviceResponse.setIsSuccess(isPassed);
         return serviceResponse;
     }
 
-    @Override
-    public ServiceResponse isContentCompleted(UserProgressControl userProgressControl) {
-        boolean isCompleted = false;
-        Set<Content> contents = materialRepository.findById(userProgressControl.getMaterialId()).get().getContents();
-        List<UserProgress> userMaterialProgress = userProgressRepository
-                .getAllByUsernameAndMaterialId(userProgressControl.getUsername(), userProgressControl.getMaterialId());
-        Content content = contentRepository.findById(userProgressControl.getContentId()).get();
-
-        Optional<UserProgress> contentProgress = userMaterialProgress.stream()
-                .filter(m -> m.getContentId().equals(userProgressControl.getContentId())).findFirst();
-        ServiceResponse serviceResponse = new ServiceResponse();
-
-        if (contentProgress.isPresent()) {
-            if (content.getOrder() != contents.size()) {
-                isCompleted = contentProgress.get().isCompleted();
-            } else {
-                for (Content dependentContent : contents) {
-                    isCompleted = userMaterialProgress.stream()
-                            .filter(p -> p.getContentId() == dependentContent.getId())
-                            .filter(c -> !c.isCompleted()).count() > 0 ? false : true;
-                    if(isCompleted){
-                        serviceResponse.setMessage("You finished the material ! ");
-                    }
-                }
-            }
-        }
-
-
-        serviceResponse.setSuccess(isCompleted);
-        return serviceResponse;
-    }
 
     private boolean checkAnswers(List<Answer> answerList, Content content) {
         boolean allTrue = false;
 
-        if(answerList == null){
-            return false;
+        if (answerList == null) {
+            allTrue = false;
         } else if (content.getQuestions().size() != answerList.size()) {
-            return false;
+            allTrue = false;
         } else {
             for (Question question : content.getQuestions()) {
-                Option correctOption =  question.getOptions().stream().filter(o -> o.getIsAnswer() == true).findFirst().get();
-                for(Answer answer : answerList){
-                    if(answer.getQuestionId().equals(question.getId())){
-                        if(answer.getOptionId().equals(correctOption.getId())){
+                Option correctOption = question.getOptions().stream().filter(o -> o.getIsAnswer() == true).findFirst().get();
+                for (Answer answer : answerList) {
+                    if (answer.getQuestionId().equals(question.getId())) {
+                        if (answer.getOptionId().equals(correctOption.getId())) {
                             allTrue = true;
                         } else {
                             return false;
@@ -130,6 +97,43 @@ public class LearnServiceImpl implements LearnService {
         }
 
         return allTrue;
+    }
+
+
+    @Override
+    public UserMaterialStatus findUserMaterialStatus(String username, Long materialId) {
+        List<Content> contents = materialRepository.getContentsByMaterialId(materialId);
+        List<UserProgress> userProgressList = userProgressRepository.getUserProgressByUsername(username);
+
+        UserMaterialStatus materialStatus = new UserMaterialStatus();
+        materialStatus.setMaterialId(materialId);
+        List<UserContentStatus> contentStatusList = new ArrayList<>();
+        int successCount = 0;
+
+        for (Content content : contents) {
+            UserContentStatus contentStatus = new UserContentStatus();
+            contentStatus.setContentId(content.getId());
+
+            Boolean isContentCompleted = false;
+
+           for(UserProgress userProgress: userProgressList){
+               if(userProgress.getContentId().equals(content.getId())){
+                   isContentCompleted = userProgress.isCompleted();
+                   break;
+               }
+           }
+
+            if (isContentCompleted) {
+                successCount++;
+            }
+
+            contentStatus.setIsCompleted(isContentCompleted);
+            contentStatusList.add(contentStatus);
+        }
+
+        materialStatus.setUserContentStatusList(contentStatusList);
+        materialStatus.setIsCompleted(successCount == contents.size());
+        return materialStatus;
     }
 
 }

@@ -1,4 +1,5 @@
 package com.boun.glearn.controller;
+import com.boun.glearn.model.UserMaterialStatus;
 import com.boun.glearn.model.UserProgressControl;
 import com.boun.glearn.service.LearnService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,15 @@ public class LearningController {
     }
 
 
-    @PostMapping("/isCompleted")
-    public ResponseEntity checkIsContentCompleted(@RequestBody @Valid UserProgressControl userProgressControl){
-        return ResponseEntity.ok(learnService.isContentCompleted(userProgressControl));
+
+    @GetMapping("/userStatus/{username}/{materialId}")
+    public ResponseEntity<UserMaterialStatus> getUserStatus(@PathVariable("username") String username,
+                                                            @PathVariable("materialId") Long materialId){
+        return ResponseEntity.ok(learnService.findUserMaterialStatus(username,materialId));
     }
+
+
+
 
 
 
