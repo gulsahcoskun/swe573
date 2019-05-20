@@ -13,5 +13,6 @@ public interface UserProgressRepository extends JpaRepository<UserProgress,Long>
 
     List<UserProgress> getUserProgressByUsername(String username);
     List<UserProgress> getAllByUsernameAndMaterialId(String username, Long materialId);
+    List<UserProgress> getAllByMaterialId(Long materialId);
 
 }
