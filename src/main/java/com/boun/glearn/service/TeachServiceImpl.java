@@ -24,6 +24,8 @@ public class TeachServiceImpl implements TeachService {
     private static final String CONTENT_NOT_EXIST = "Content does not exist.";
     private static final String QUESTION_NOT_EXIST = "Question does not exist.";
     private static final String SUCCESS_MESSAGE = "Successfully completed.";
+    private static final String OPTION_EMPTY = "Options cannot be empty.";
+    private static final String ONE_ANSWER = "Only one true answer should be entered";
 
 
     @Autowired
@@ -235,6 +237,17 @@ public class TeachServiceImpl implements TeachService {
         ServiceResponse serviceResponse = new ServiceResponse();
         Optional<Content> content = contentRepository.findById(contentId);
         if(content.isPresent()){
+
+            if(question.getOptions().isEmpty()){
+                serviceResponse.setIsSuccess(false);
+                serviceResponse.setMessage(OPTION_EMPTY);
+                return serviceResponse;
+            } else if(question.getOptions().stream().filter(o -> o.getIsAnswer() == true).count() > 1){
+                serviceResponse.setIsSuccess(false);
+                serviceResponse.setMessage(ONE_ANSWER);
+                return serviceResponse;
+            }
+
             long count = content.get().getQuestions().size() +1;
 
             Question newQuestion = new Question();
