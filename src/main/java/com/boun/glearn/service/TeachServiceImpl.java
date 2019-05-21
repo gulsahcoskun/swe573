@@ -54,7 +54,7 @@ public class TeachServiceImpl implements TeachService {
         final List<WbSearchEntitiesResult> entitiesResults;
 
         try {
-            entitiesResults = wbdf.searchEntities(keyword);
+            entitiesResults = wbdf.searchEntities(keyword,20L);
 
             for(WbSearchEntitiesResult result: entitiesResults){
                 keywordList.add(new Keyword(result.getTitle(), result.getLabel(),
@@ -63,6 +63,7 @@ public class TeachServiceImpl implements TeachService {
         } catch (MediaWikiApiErrorException e) {
             logger.error(e.getErrorMessage());
         }
+
 
         return keywordList;
     }
