@@ -54,9 +54,9 @@ public class TeachServiceImpl implements TeachService {
         final List<WbSearchEntitiesResult> entitiesResults;
 
         try {
-            entitiesResults = wbdf.searchEntities(keyword,20L);
+            entitiesResults = wbdf.searchEntities(keyword, 20L);
 
-            for(WbSearchEntitiesResult result: entitiesResults){
+            for (WbSearchEntitiesResult result : entitiesResults) {
                 keywordList.add(new Keyword(result.getTitle(), result.getLabel(),
                         result.getUrl(), result.getDescription()));
             }
@@ -75,24 +75,36 @@ public class TeachServiceImpl implements TeachService {
 
     @Override
     public Set<Content> getAllContents(Long materialId) {
-        return  materialRepository.findById(materialId).get().getContents();
+        Optional<Material> foundMaterial = materialRepository.findById(materialId);
+        if (foundMaterial.isPresent()) {
+            return foundMaterial.get().getContents();
+        }
+        return null;
     }
 
     @Override
     public Set<Question> getAllQuestions(Long contentId) {
-        return contentRepository.findById(contentId).get().getQuestions();
+        Optional<Content> foundContent = contentRepository.findById(contentId);
+        if (foundContent.isPresent()) {
+            return foundContent.get().getQuestions();
+        }
+        return null;
     }
 
     @Override
     public Set<Keyword> getAllKeywords(Long contentId) {
-        return contentRepository.findById(contentId).get().getKeywords();
+        Optional<Content> foundContent = contentRepository.findById(contentId);
+        if (foundContent.isPresent()) {
+            return foundContent.get().getKeywords();
+        }
+        return null;
     }
 
 
     @Override
     public ServiceResponse addMaterial(Material material) {
         ServiceResponse serviceResponse = new ServiceResponse();
-        if(material.getId() != null && materialRepository.findById(material.getId()).isPresent()){
+        if (material.getId() != null && materialRepository.findById(material.getId()).isPresent()) {
             serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(MATERIAL_EXISTS);
         } else {
@@ -101,14 +113,14 @@ public class TeachServiceImpl implements TeachService {
             serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
         }
-       return serviceResponse;
+        return serviceResponse;
     }
 
     @Override
     public ServiceResponse updateMaterial(Material material, Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
         Optional<Material> foundMaterial = materialRepository.findById(material.getId());
-        if(foundMaterial.isPresent()){
+        if (foundMaterial.isPresent()) {
             Material newMaterial = foundMaterial.get();
             newMaterial.setTitle(material.getTitle());
             newMaterial.setImage(material.getImage());
@@ -128,10 +140,11 @@ public class TeachServiceImpl implements TeachService {
     @Override
     public ServiceResponse deleteMaterial(Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
-        if(materialRepository.findById(id).isPresent()){
-            Material material = materialRepository.findById(id).get();
+        Optional<Material> material = materialRepository.findById(id);
+        if (material.isPresent()) {
+            Material foundMaterial = material.get();
 
-            for(Content content : material.getContents()){
+            for (Content content : foundMaterial.getContents()) {
                 Set<Question> questions = content.getQuestions();
                 Set<Keyword> keywords = content.getKeywords();
 
@@ -143,6 +156,7 @@ public class TeachServiceImpl implements TeachService {
             materialRepository.deleteById(id);
             serviceResponse.setIsSuccess(true);
             serviceResponse.setMessage(SUCCESS_MESSAGE);
+
         } else {
             serviceResponse.setIsSuccess(false);
             serviceResponse.setMessage(MATERIAL_NOT_EXIST);
@@ -154,8 +168,8 @@ public class TeachServiceImpl implements TeachService {
     public ServiceResponse addContent(Content content, Long materialId) {
         ServiceResponse serviceResponse = new ServiceResponse();
         Optional<Material> material = materialRepository.findById(materialId);
-        if(material.isPresent()){
-            long count = material.get().getContents().size() + 1;
+        if (material.isPresent()) {
+            long count = material.get().getContents().size() + 1L;
 
             Content newContent = new Content();
             newContent.setTitle(content.getTitle());
@@ -169,8 +183,8 @@ public class TeachServiceImpl implements TeachService {
             contentRepository.save(newContent);
 
 
-            for(Keyword keyword : content.getKeywords()){
-                if(keywordRepository.findByTitle(keyword.getTitle()) == null){
+            for (Keyword keyword : content.getKeywords()) {
+                if (keywordRepository.findByTitle(keyword.getTitle()) == null) {
                     Keyword newKeyword = new Keyword();
                     newKeyword.setLabel(keyword.getLabel());
                     newKeyword.setContent(newContent);
@@ -196,7 +210,7 @@ public class TeachServiceImpl implements TeachService {
     public ServiceResponse updateContent(Content content, Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
         Optional<Content> foundContent = contentRepository.findById(id);
-        if(foundContent.isPresent()){
+        if (foundContent.isPresent()) {
             Content newContent = foundContent.get();
             newContent.setTitle(content.getTitle());
             newContent.setImage(content.getImage());
@@ -215,8 +229,9 @@ public class TeachServiceImpl implements TeachService {
     @Override
     public ServiceResponse deleteContent(Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
-        if(contentRepository.findById(id).isPresent()){
-            Content content = contentRepository.findById(id).get();
+        Optional<Content> foundContent = contentRepository.findById(id);
+        if (foundContent.isPresent()) {
+            Content content = foundContent.get();
             Set<Question> questions = content.getQuestions();
             Set<Keyword> keywords = content.getKeywords();
 
@@ -237,19 +252,19 @@ public class TeachServiceImpl implements TeachService {
     public ServiceResponse addQuestion(Question question, Long contentId) {
         ServiceResponse serviceResponse = new ServiceResponse();
         Optional<Content> content = contentRepository.findById(contentId);
-        if(content.isPresent()){
+        if (content.isPresent()) {
 
-            if(question.getOptions().isEmpty()){
+            if (question.getOptions().isEmpty()) {
                 serviceResponse.setIsSuccess(false);
                 serviceResponse.setMessage(OPTION_EMPTY);
                 return serviceResponse;
-            } else if(question.getOptions().stream().filter(o -> o.getIsAnswer() == true).count() > 1){
+            } else if (question.getOptions().stream().filter(o -> o.getIsAnswer() == true).count() > 1) {
                 serviceResponse.setIsSuccess(false);
                 serviceResponse.setMessage(ONE_ANSWER);
                 return serviceResponse;
             }
 
-            long count = content.get().getQuestions().size() +1;
+            long count = content.get().getQuestions().size() + 1L;
 
             Question newQuestion = new Question();
             newQuestion.setContent(content.get());
@@ -288,7 +303,7 @@ public class TeachServiceImpl implements TeachService {
     public ServiceResponse updateQuestion(Question question, Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
         Optional<Question> foundQuestion = questionRepository.findById(id);
-        if(foundQuestion.isPresent()){
+        if (foundQuestion.isPresent()) {
             Question newQuestion = foundQuestion.get();
             newQuestion.setQuestionText(question.getQuestionText());
             questionRepository.save(newQuestion);
@@ -305,8 +320,9 @@ public class TeachServiceImpl implements TeachService {
     @Override
     public ServiceResponse deleteQuestion(Long id) {
         ServiceResponse serviceResponse = new ServiceResponse();
-        if(questionRepository.findById(id).isPresent()){
-            Question question = questionRepository.findById(id).get();
+        Optional<Question> foundQuestion = questionRepository.findById(id);
+        if (foundQuestion.isPresent()) {
+            Question question = foundQuestion.get();
             Set<Option> options = question.getOptions();
 
             options.stream().forEach(q -> optionRepository.deleteById(q.getId()));

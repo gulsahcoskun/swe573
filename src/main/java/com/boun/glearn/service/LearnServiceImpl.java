@@ -29,16 +29,21 @@ public class LearnServiceImpl implements LearnService {
         List<UserProgress> userMaterialProgress = userProgressRepository
                 .getAllByUsernameAndMaterialId(userProgressControl.getUsername(), userProgressControl.getMaterialId());
 
-        Content content = contentRepository.findById(userProgressControl.getContentId()).get();
+        Optional<Content> content = contentRepository.findById(userProgressControl.getContentId());
+        boolean isPassed = false;
+
+        if(content.isPresent()){
+            Content foundContent = content.get();
+            if (foundContent.getQuestions() == null || foundContent.getQuestions().isEmpty()) {
+                isPassed = true;
+            } else {
+                isPassed = checkAnswers(userProgressControl.getAnswerList(), foundContent);
+            }
+        }
 
         UserProgress progress = new UserProgress();
 
-        boolean isPassed;
-        if (content.getQuestions() == null || content.getQuestions().isEmpty()) {
-            isPassed = true;
-        } else {
-            isPassed = checkAnswers(userProgressControl.getAnswerList(), content);
-        }
+
 
         if (userMaterialProgress == null) {
             progress.setUsername(userProgressControl.getUsername());
@@ -83,13 +88,16 @@ public class LearnServiceImpl implements LearnService {
             allTrue = false;
         } else {
             for (Question question : content.getQuestions()) {
-                Option correctOption = question.getOptions().stream().filter(o -> o.getIsAnswer() == true).findFirst().get();
-                for (Answer answer : answerList) {
-                    if (answer.getQuestionId().equals(question.getId())) {
-                        if (answer.getOptionId().equals(correctOption.getId())) {
-                            allTrue = true;
-                        } else {
-                            return false;
+                Optional<Option> correctOption = question.getOptions().stream().filter(o -> o.getIsAnswer() == true).findFirst();
+
+                if(correctOption.isPresent()){
+                    for (Answer answer : answerList) {
+                        if (answer.getQuestionId().equals(question.getId())) {
+                            if (answer.getOptionId().equals(correctOption.getId())) {
+                                allTrue = true;
+                            } else {
+                                return false;
+                            }
                         }
                     }
                 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -63,8 +64,9 @@ public class SearchServiceImpl implements SearchService {
     public Material getMaterialDetail(Long materialId) {
         Optional<Material> found = repository.findById(materialId);
         if (found.isPresent()) {
-            found.get().getContents().stream().sorted(Comparator.comparing(Content::getOrder));
-            return found.get();
+            Material foundMaterial = found.get();
+            foundMaterial.getContents().stream().sorted(Comparator.comparing(Content::getOrder));
+            return foundMaterial;
         }
         return null;
     }
@@ -104,7 +106,10 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if( !contents.isEmpty() && (successCount != contents.size())){
-                foundMaterials.add(repository.findById(id).get());
+                Optional<Material> foundMaterial = repository.findById(id);
+                if(foundMaterial.isPresent()){
+                    foundMaterials.add(foundMaterial.get());
+                }
             }
 
         }
@@ -144,7 +149,10 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if(!contents.isEmpty() && (successCount == contents.size())){
-                foundMaterials.add(repository.findById(id).get());
+                Optional<Material> foundMaterial = repository.findById(id);
+                if(foundMaterial.isPresent()){
+                    foundMaterials.add(foundMaterial.get());
+                }
             }
 
         }

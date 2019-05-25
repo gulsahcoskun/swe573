@@ -40,7 +40,7 @@ public class TrackServiceImpl implements TrackService {
 
                    for(Content content : material.get().getContents()){
                        for(UserProgress progress : materialProgress){
-                           if((progress.getContentId() == content.getId())){
+                           if((progress.getContentId().equals(content.getId()))){
                                DetailedTrackData detailedTrackData = new DetailedTrackData();
                                detailedTrackData.setContentName(content.getTitle());
                                detailedTrackData.setNumberOfTry(progress.getNumberOfTry().intValue());
