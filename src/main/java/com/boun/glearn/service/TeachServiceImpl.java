@@ -28,20 +28,25 @@ public class TeachServiceImpl implements TeachService {
     private static final String ONE_ANSWER = "Only one true answer should be entered";
 
 
-    @Autowired
     private MaterialRepository materialRepository;
 
-    @Autowired
     private ContentRepository contentRepository;
 
-    @Autowired
     private KeywordRepository keywordRepository;
 
-    @Autowired
     private QuestionRepository questionRepository;
 
-    @Autowired
     private OptionRepository optionRepository;
+
+    public TeachServiceImpl(MaterialRepository materialRepository, ContentRepository contentRepository,
+                            KeywordRepository keywordRepository, QuestionRepository questionRepository,
+                            OptionRepository optionRepository){
+        this.materialRepository = materialRepository;
+        this.contentRepository = contentRepository;
+        this.keywordRepository = keywordRepository;
+        this.questionRepository = questionRepository;
+        this.optionRepository = optionRepository;
+    }
 
 
     @Override

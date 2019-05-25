@@ -6,23 +6,24 @@ import com.boun.glearn.model.MaterialSummary;
 import com.boun.glearn.model.UserProgress;
 import com.boun.glearn.repository.MaterialRepository;
 import com.boun.glearn.repository.UserProgressRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class SearchServiceImpl implements SearchService {
 
-    @Autowired
     private MaterialRepository repository;
 
-    @Autowired
     private UserProgressRepository userProgressRepository;
+
+    public SearchServiceImpl(MaterialRepository materialRepository, UserProgressRepository userProgressRepository){
+        repository = materialRepository;
+        this.userProgressRepository = userProgressRepository;
+    }
 
     @Override
     public List<MaterialSummary> getAllMaterialSummaries(String username) {

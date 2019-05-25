@@ -3,7 +3,6 @@ package com.boun.glearn.service;
 import com.boun.glearn.model.*;
 import com.boun.glearn.repository.MaterialRepository;
 import com.boun.glearn.repository.UserProgressRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,11 +11,15 @@ import java.util.stream.Collectors;
 @Service
 public class TrackServiceImpl implements TrackService {
 
-    @Autowired
     private UserProgressRepository userProgressRepository;
 
-    @Autowired
     private MaterialRepository materialRepository;
+
+
+    public TrackServiceImpl(UserProgressRepository userProgressRepository, MaterialRepository materialRepository){
+        this.userProgressRepository = userProgressRepository;
+        this.materialRepository = materialRepository;
+    }
 
 
     @Override

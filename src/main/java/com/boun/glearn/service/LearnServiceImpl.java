@@ -14,14 +14,19 @@ import java.util.*;
 @Service
 public class LearnServiceImpl implements LearnService {
 
-    @Autowired
     private UserProgressRepository userProgressRepository;
 
-    @Autowired
     private MaterialRepository materialRepository;
 
-    @Autowired
     private ContentRepository contentRepository;
+
+    public LearnServiceImpl(UserProgressRepository userProgressRepository,
+                            MaterialRepository materialRepository,
+                            ContentRepository contentRepository){
+        this.userProgressRepository = userProgressRepository;
+        this.materialRepository = materialRepository;
+        this.contentRepository = contentRepository;
+    }
 
 
     @Override
