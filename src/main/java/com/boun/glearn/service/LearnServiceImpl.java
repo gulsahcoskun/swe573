@@ -93,7 +93,7 @@ public class LearnServiceImpl implements LearnService {
                 if(correctOption.isPresent()){
                     for (Answer answer : answerList) {
                         if (answer.getQuestionId().equals(question.getId())) {
-                            if (answer.getOptionId().equals(correctOption.getId())) {
+                            if (answer.getOptionId().equals(correctOption.get().getId())) {
                                 allTrue = true;
                             } else {
                                 return false;
