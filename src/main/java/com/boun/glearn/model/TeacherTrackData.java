@@ -1,16 +1,14 @@
 package com.boun.glearn.model;
 
+import java.util.List;
+
 public class TeacherTrackData {
 
     private String materialName;
     private Integer numberOfStudents;
+    private List<DetailedTrackData> detailedTrackDataList;
 
     public TeacherTrackData() {
-    }
-
-    public TeacherTrackData(String materialName, Integer numberOfStudents) {
-        this.materialName = materialName;
-        this.numberOfStudents = numberOfStudents;
     }
 
     public String getMaterialName() {
@@ -27,5 +25,14 @@ public class TeacherTrackData {
 
     public void setNumberOfStudents(Integer numberOfStudents) {
         this.numberOfStudents = numberOfStudents;
+    }
+
+
+    public List<DetailedTrackData> getDetailedTrackDataList() {
+        return detailedTrackDataList;
+    }
+
+    public void setDetailedTrackDataList(List<DetailedTrackData> detailedTrackDataList) {
+        this.detailedTrackDataList = detailedTrackDataList;
     }
 }
