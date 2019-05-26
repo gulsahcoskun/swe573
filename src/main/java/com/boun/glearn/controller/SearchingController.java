@@ -17,8 +17,11 @@ import java.util.Optional;
 @RequestMapping("search")
 public class SearchingController {
 
-    @Autowired
     private SearchService searchService;
+
+    public SearchingController(SearchService searchService){
+        this.searchService = searchService;
+    }
 
     @GetMapping("/{username}")
     public ResponseEntity<List<MaterialSummary>> getMaterials(@PathVariable(name="username") String username){

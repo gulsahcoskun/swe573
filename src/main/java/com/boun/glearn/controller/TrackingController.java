@@ -14,8 +14,11 @@ import java.util.List;
 @RequestMapping("track")
 public class TrackingController {
 
-    @Autowired
     private TrackService trackService;
+
+    public TrackingController(TrackService trackService){
+        this.trackService = trackService;
+    }
 
     @GetMapping("/student/{username}")
     public ResponseEntity<List<StudentTrackData>> getStudentTrackData(@PathVariable("username") String username){

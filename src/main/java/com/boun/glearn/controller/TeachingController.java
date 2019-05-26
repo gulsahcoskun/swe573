@@ -16,8 +16,11 @@ import javax.validation.Valid;
 @RequestMapping("teach")
 public class TeachingController {
 
-    @Autowired
     private TeachService service;
+
+    public TeachingController(TeachService teachService){
+        service = teachService;
+    }
 
 
     @GetMapping("/search/{keyword}")

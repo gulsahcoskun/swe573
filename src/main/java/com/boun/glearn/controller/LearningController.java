@@ -13,9 +13,11 @@ import javax.validation.Valid;
 @RequestMapping("learn")
 public class LearningController {
 
-
-    @Autowired
     private LearnService learnService;
+
+    public LearningController(LearnService learnService){
+        this.learnService = learnService;
+    }
 
     @PostMapping("/progress")
     public ResponseEntity addProgress(@RequestBody @Valid UserProgressControl userProgressControl){
