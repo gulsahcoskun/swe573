@@ -51,6 +51,8 @@ spring.datasource.username=***
 spring.datasource.password=***
 ```
 
+Create a schema named **glearn**
+
 -----------------------------
 ## Build
 
@@ -105,6 +107,14 @@ $ java -jar target/swe573-0.0.1-SNAPSHOT.jar
 It is also possible to run it with maven plugin.
 ```sh
 $  mvn spring-boot:run
+```
+
+Application is deployed at the port **8080** with the context path of **glearn**  
+These can be edited from the application.properties file.
+
+```sh
+server.port=8080
+server.servlet.contextPath=/glearn
 ```
 
 ### Run Frontend
